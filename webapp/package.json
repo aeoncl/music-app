@@ -15,6 +15,9 @@
 		"lint": "eslint . && prettier --check . && eslint .",
 		"format": "prettier --write ."
 	},
+	"dependencies": {
+		"extract-colors": "^4.2.1"
+	},
 	"devDependencies": {
 		"@eslint/compat": "^1.4.0",
 		"@eslint/js": "^9.39.1",
