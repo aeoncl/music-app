@@ -136,6 +136,7 @@
 	}
 
 	footer {
+		height: 6em;
 		background-color: var(--clr-dark-a0)
 	}
 

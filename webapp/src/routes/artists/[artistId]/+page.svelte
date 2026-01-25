@@ -130,10 +130,11 @@
         content: '';
         position: fixed;
         background-image: var(--img);
-        height: 40vh;
+        height: 100%;
         width: 100%;
         opacity: var(--opacityAmountDown);
         background-size: cover;
+        background-position: center;
         scale: var(--scaleAmount);
         z-index: -1;
     }
