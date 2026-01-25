@@ -1,0 +1,74 @@
+.theme-dark {
+  /** Base colors */
+  --clr-dark-a0: #000000;
+  --clr-light-a0: #ffffff;
+
+  /** Theme primary colors */
+  --clr-primary-a0: #691dcc;
+  --clr-primary-a10: #7e3bd2;
+  --clr-primary-a20: #9155d9;
+  --clr-primary-a30: #a26ddf;
+  --clr-primary-a40: #b385e5;
+  --clr-primary-a50: #c39deb;
+
+  /** Theme surface colors */
+  --clr-surface-a0: #121212;
+  --clr-surface-a10: #282828;
+  --clr-surface-a20: #3f3f3f;
+  --clr-surface-a30: #575757;
+  --clr-surface-a40: #717171;
+  --clr-surface-a50: #8b8b8b;
+
+  /** Theme tonal surface colors */
+  --clr-surface-tonal-a0: #1c1622;
+  --clr-surface-tonal-a10: #312b37;
+  --clr-surface-tonal-a20: #47424d;
+  --clr-surface-tonal-a30: #5f5a64;
+  --clr-surface-tonal-a40: #78737c;
+  --clr-surface-tonal-a50: #918d94;
+
+  /** Success colors */
+  --clr-success-a0: #22946e;
+  --clr-success-a10: #47d5a6;
+  --clr-success-a20: #9ae8ce;
+
+  /** Warning colors */
+  --clr-warning-a0: #a87a2a;
+  --clr-warning-a10: #d7ac61;
+  --clr-warning-a20: #ecd7b2;
+
+  /** Danger colors */
+  --clr-danger-a0: #9c2121;
+  --clr-danger-a10: #d94a4a;
+  --clr-danger-a20: #eb9e9e;
+
+  /** Info colors */
+  --clr-info-a0: #21498a;
+  --clr-info-a10: #4077d1;
+  --clr-info-a20: #92b2e5;
+}
+
+/* width */
+::-webkit-scrollbar {
+  width: .6em;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: none;
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  background-clip: padding-box; // <== make the border work
+}
+
+/* Handle on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: white;
+  border: 0;
+
+}
