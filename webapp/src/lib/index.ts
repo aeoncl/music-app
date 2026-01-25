@@ -3,58 +3,58 @@
 export type Artist = {
 	id: number;
 	name: string;
-	image: string;
+	artistImageUrl: string;
 }
 
 export const artists : Artist[] = [
 	{
 		id: 1,
 		name: 'The Offspring',
-		image: '/img/artists/the-offspring.png'
+		artistImageUrl: '/img/artists/the-offspring.png'
 	},
 	{
 		id: 2,
 		name: 'Green Day',
-		image: '/img/artists/green-day.png'
+		artistImageUrl: '/img/artists/green-day.png'
 	},
 	{
 		id: 3,
 		name: 'Blink-182',
-		image: '/img/artists/blink-182.png'
+		artistImageUrl: '/img/artists/blink-182.png'
 	},
 	{
 		id: 4,
 		name: 'Sum 41',
-		image: '/img/artists/sum-41.png'
+		artistImageUrl: '/img/artists/sum-41.png'
 	},
 	{
 		id: 5,
 		name: 'Rise Against',
-		image: '/img/artists/rise-against.png'
+		artistImageUrl: '/img/artists/rise-against.png'
 	},
 	{
 		id: 6,
 		name: 'Depeche Mode',
-		image: '/img/artists/depeche-mode.png'
+		artistImageUrl: '/img/artists/depeche-mode.png'
 	},
 	{
 		id: 7,
 		name: 'The Sisters of Mercy',
-		image: '/img/artists/the-sisters-of-mercy.png'
+		artistImageUrl: '/img/artists/the-sisters-of-mercy.png'
 	},
 	{
 		id: 8,
 		name: 'Clan of Xymox',
-		image: '/img/artists/clan-of-xymox.png'
+		artistImageUrl: '/img/artists/clan-of-xymox.png'
 	},
 	{
 		id: 9,
 		name: 'She Past Away',
-		image: '/img/artists/she-past-away.png'
+		artistImageUrl: '/img/artists/she-past-away.png'
 	},
 	{
 		id: 10,
 		name: 'Twin Tribes',
-		image: '/img/artists/twin-tribes.png'
+		artistImageUrl: '/img/artists/twin-tribes.png'
 	}
 ];

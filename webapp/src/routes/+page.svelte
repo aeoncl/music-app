@@ -1,6 +1,10 @@
 <script lang="ts">
     import ContentCard from "./content-card.svelte";
-    import {artists} from "$lib";
+    import type {PageProps} from "./$types";
+
+    let { data }: PageProps = $props();
+
+
 </script>
 
 <div class="contentSection">
@@ -10,8 +14,8 @@
     </h1>
 
     <div class="albumsContainer">
-        {#each artists as artist}
-            <ContentCard name={artist.name} imgPath={artist.image} href="/artists/{artist.id}" isRound={true} />
+        {#each data.artists as artist}
+            <ContentCard name={artist.name} imgPath={artist.artistImageUrl} href="/artists/{artist.id}" isRound={true} />
         {/each}
     </div>
 
