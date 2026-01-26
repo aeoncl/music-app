@@ -7,17 +7,39 @@
 	let { children } = $props();
 
 
-	let width = $state(240);
-	const min = 120;
-	const max = 500;
+	let widthColumLeft = $state(240);
+	const minColumLeft = 120;
+	const minColumnLeft = 500;
 
 	function startResize(e: MouseEvent) {
 		const startX = e.clientX;
-		const startWidth = width;
+		const startWidth = widthColumLeft;
 
 		function onMove(ev: MouseEvent) {
 			const next = startWidth + (ev.clientX - startX);
-			width = Math.min(max, Math.max(min, next));
+			widthColumLeft = Math.min(minColumnLeft, Math.max(minColumLeft, next));
+		}
+
+		function onUp() {
+			window.removeEventListener('mousemove', onMove);
+			window.removeEventListener('mouseup', onUp);
+		}
+
+		window.addEventListener('mousemove', onMove);
+		window.addEventListener('mouseup', onUp);
+	}
+
+
+	let widthColumRight = $state(240);
+	const minColumRight = 120;
+	const minColumnRight = 500;
+	function startResize2(e: MouseEvent) {
+		const startX = e.clientX;
+		const startWidth = widthColumRight;
+
+		function onMove(ev: MouseEvent) {
+			const next = startWidth - (ev.clientX - startX);
+			widthColumRight = Math.min(minColumnRight, Math.max(minColumRight, next));
 		}
 
 		function onUp() {
@@ -41,7 +63,7 @@
 	</header>
 
 	<div class="mainSection">
-		<aside class="sidebar" style={`width: ${width}px`}>
+		<aside class="sidebar" style={`width: ${widthColumLeft}px`}>
 
 		</aside>
 		<div class="sidebar-resize1" onmousedown={startResize}>
@@ -52,11 +74,11 @@
 			{@render children()}
 		</main>
 
-		<div class="sidebar-resize2" onmousedown={startResize}>
+		<div class="sidebar-resize2" onmousedown={startResize2}>
 			<div class="resize-handle"></div>
 		</div>
 
-		<aside class="sidebar2">
+		<aside class="sidebar2" style={`width: ${widthColumRight}px`}>
 			<div class="resize-handle"></div>
 		</aside>
 
