@@ -1,7 +1,7 @@
-import type { PageLoad } from '../../.svelte-kit/types/src/routes/(content)/artists/[artistId]/$types';
+import type { PageLoad } from './$types';
 import { PUBLIC_NAVIDROME_URL, PUBLIC_NAVIDROME_TOKEN, PUBLIC_NAVIDROME_USER} from '$env/static/public';
 
-export const load: PageLoad = async ({ params }) => {
+export const load: PageLoad = async ({ fetch, params }) => {
 
 	type GetArtistsResponse = {
 		"subsonic-response": {

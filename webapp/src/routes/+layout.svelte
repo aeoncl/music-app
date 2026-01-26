@@ -3,6 +3,7 @@
 	import PlayerControls from "./player-controls.svelte";
 
 	import '../app.css'
+
 	let { children } = $props();
 
 
