@@ -1,5 +1,9 @@
 <script lang="ts">
 
+    import { player, playerState } from '$lib/state/player.service';
+    import {durationToString} from "$lib";
+
+
     function handleTimelineClick(event: MouseEvent) {
         const timeline = event.currentTarget as HTMLElement;
         const bar = timeline.querySelector('.bar') as HTMLElement;
@@ -13,6 +17,17 @@
             bar.style.width = `${percent * 100}%`;
         }
 
+        function seekSong(event: MouseEvent) {
+
+            const rect = timeline.getBoundingClientRect();
+            const percent = Math.max(0, Math.min(1, (event.clientX - rect.left) / rect.width));
+
+            const s = $playerState;
+            const duration = s.duration || s.track?.duration || 0;
+            if (duration > 0) player.seek(duration * percent);
+
+        }
+
         update(event);
         timeline.classList.add('dragging');
 
@@ -21,7 +36,7 @@
         ball.style.visibility = 'visible';
 
         const onMove = (e: MouseEvent) => update(e);
-        const onUp = () => {
+        const onUp = (e: MouseEvent) => {
             timeline.classList.remove('dragging');
 
             // Remove inline styles to let CSS take over
@@ -30,6 +45,8 @@
 
             document.removeEventListener('mousemove', onMove);
             document.removeEventListener('mouseup', onUp);
+
+            seekSong(e);
         };
 
         document.addEventListener('mousemove', onMove);
@@ -44,19 +61,30 @@
     <div class="controls">
         <button>🔀</button>
         <button>⏮</button>
-        <button class="play">▶︎</button>
+        <button class="play" onclick={() => player.toggle()}>
+            {#if $playerState.playing} ⏸ {/if}
+            {#if !$playerState.playing} ▶︎ {/if}
+        </button>
         <button>⏭</button>
         <button>🔂</button>
 
     </div>
 
+    <span>{durationToString($playerState.currentTime)}</span>
+
 
     <div class="timeline" onmousedown={handleTimelineClick}>
-        <div class="bar-empty"></div>
-        <div class="bar">
 
-        </div>
-        <div class="ball"></div>
+        <div class="bar-empty"></div>
+
+        {#if ($playerState.duration || 0) > 0}
+            {@const p = Math.max(0, Math.min(1, $playerState.currentTime / $playerState.duration))}
+            <div class="bar" style:width={`${p * 100}%`}></div>
+            <div class="ball" style:left={`${p * 100}%`}></div>
+        {:else}
+            <div class="bar" style:width="0%"></div>
+            <div class="ball" style:left="0%"></div>
+        {/if}
     </div>
 
 

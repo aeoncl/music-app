@@ -5,11 +5,6 @@
 
     let { data }: PageProps = $props();
 
-
-    const albums = Array.from({ length: 8 }, () => ({
-        title: 'Album Title',
-        isRound: Math.random() < 0.5
-    }));
 </script>
 
             <h2>Liked Songs</h2>
@@ -30,9 +25,15 @@
 
             <h2>Discography</h2>
             <section class="discography">
-                {#each data.artist.album as album (album.id)}
-                    <ContentCard name={album.name} isRound={false} imgPath={data.getImagePath(album.coverArt)} href="/albums/{album.id}"/>
-                {/each}
+
+                {#await data}
+                    <p>Loading...</p>
+                {:then data}
+                    {#each data.artist.album as album (album.id)}
+                        <ContentCard name={album.name} isRound={false} imgPath={data.getImagePath(album.coverArt)} href="/albums/{album.id}"/>
+                    {/each}
+                {/await}
+
             </section>
 
             <h2>About</h2>

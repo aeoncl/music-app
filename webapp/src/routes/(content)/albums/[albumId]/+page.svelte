@@ -1,29 +1,13 @@
 <script lang="ts">
 
     import type {PageProps} from '$routes';
-    import {SpyModule} from "vitest/internal/browser";
-
+    import { player } from '$lib/state/player.service';
+    import {durationToString} from "$lib";
 
     let { data }: PageProps = $props();
 
 
-    function durationToString(durationInSec: number): string {
 
-        let hours = Math.floor(durationInSec / 3600);
-        let minutes = Math.floor((durationInSec - (hours * 3600)) / 60);
-        let seconds = durationInSec - (hours * 3600) - (minutes * 60);
-
-        let out = "";
-        if (hours > 0) {
-            out += hours + ":";
-        }
-
-        let secondsFormatted = (seconds < 10) ? "0" + seconds : seconds;
-
-        out += `${minutes}:${secondsFormatted}`;
-
-        return out;
-    }
 
 </script>
 
@@ -34,7 +18,7 @@
 </div>
 
 {#each data.album.song as song (song.id)}
-    <div class="table-row row">
+    <div class="table-row row" onclick={() => player.play(song)}>
         <div class="trackNumber">
             <span>{song.track}</span>
         </div>

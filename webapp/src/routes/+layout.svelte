@@ -3,53 +3,21 @@
 	import PlayerControls from "./player-controls.svelte";
 
 	import '../app.css'
+	import {onMount} from "svelte";
+	import {player} from "$lib/state/player.service";
+	import PanelResizer from "./panel-resizer.svelte";
+	import {DragDirection} from "$lib/attachments/resizeX";
 
 	let { children } = $props();
 
-
 	let widthColumLeft = $state(240);
-	const minColumLeft = 120;
-	const minColumnLeft = 500;
-
-	function startResize(e: MouseEvent) {
-		const startX = e.clientX;
-		const startWidth = widthColumLeft;
-
-		function onMove(ev: MouseEvent) {
-			const next = startWidth + (ev.clientX - startX);
-			widthColumLeft = Math.min(minColumnLeft, Math.max(minColumLeft, next));
-		}
-
-		function onUp() {
-			window.removeEventListener('mousemove', onMove);
-			window.removeEventListener('mouseup', onUp);
-		}
-
-		window.addEventListener('mousemove', onMove);
-		window.addEventListener('mouseup', onUp);
-	}
-
-
 	let widthColumRight = $state(240);
-	const minColumRight = 120;
-	const minColumnRight = 500;
-	function startResize2(e: MouseEvent) {
-		const startX = e.clientX;
-		const startWidth = widthColumRight;
 
-		function onMove(ev: MouseEvent) {
-			const next = startWidth - (ev.clientX - startX);
-			widthColumRight = Math.min(minColumnRight, Math.max(minColumRight, next));
-		}
+	let audioEl: HTMLAudioElement;
 
-		function onUp() {
-			window.removeEventListener('mousemove', onMove);
-			window.removeEventListener('mouseup', onUp);
-		}
-
-		window.addEventListener('mousemove', onMove);
-		window.addEventListener('mouseup', onUp);
-	}
+	onMount(() => {
+		player.attach(audioEl);
+	});
 
 </script>
 
@@ -66,27 +34,31 @@
 		<aside class="sidebar" style={`width: ${widthColumLeft}px`}>
 
 		</aside>
-		<div class="sidebar-resize1" onmousedown={startResize}>
-			<div class="resize-handle"></div>
-		</div>
+
+		<PanelResizer  class="sidebar-resize1" get={() => widthColumLeft}
+					   set={(next) => (widthColumLeft = next)} direction={DragDirection.Right} ></PanelResizer>
+
 
 		<main>
 			{@render children()}
 		</main>
 
-		<div class="sidebar-resize2" onmousedown={startResize2}>
-			<div class="resize-handle"></div>
-		</div>
+		<PanelResizer class="sidebar-resize2" get={() => widthColumRight}
+					  set={(next) => (widthColumRight = next)} direction={DragDirection.Left} ></PanelResizer>
 
 		<aside class="sidebar2" style={`width: ${widthColumRight}px`}>
-			<div class="resize-handle"></div>
 		</aside>
 
 	</div>
 
 	<footer>
+
 		<PlayerControls></PlayerControls>
 	</footer>
+
+	<audio bind:this={audioEl} ></audio>
+
+
 </div>
 
 
@@ -110,7 +82,7 @@
 	.mainSection {
 		display: grid;
 		grid-template:
-		   "sidebar sidebar-reszize main sidebar-reszize2 sidebar2" 1fr
+		   "sidebar sidebar-resize main sidebar-resize2 sidebar2" 1fr
 			/ min-content min-content auto min-content min-content;
 		min-height: 0;
 		flex: 1; /* this essentially means "use all parent's inner width */
@@ -144,12 +116,20 @@
 		background-color: var(--clr-surface-a0);
 	}
 
+	.mainSection :global(.sidebar-resize1) {
+		grid-area: sidebar-resize;
+	}
+
 	.sidebar2
 	{
 		width: 20em;
 		grid-area: sidebar2;
 		min-height: 0;
 		background-color: var(--clr-surface-a0);
+	}
+
+	.mainSection :global(.sidebar-resize2) {
+		grid-area: sidebar-resize2;
 	}
 
 	main {
@@ -163,31 +143,23 @@
 		background-color: var(--clr-dark-a0)
 	}
 
-	.sidebar-resize1 {
-		width: .6em;
-		text-align: center;
-		grid-area: sidebar-reszize;
-		cursor: ew-resize;
-		user-select: none;
-	}
 
-	.sidebar-resize2 {
-		width: .6em;
-		text-align: center;
-		grid-area: sidebar-reszize2;
-		cursor: ew-resize;
-		user-select: none;
-	}
 
-	.resize-handle {
-		display: inline-block;
-		margin: 0 auto;
-		width: 30%;
-		height: 100%;
-	}
+	@media (max-width: 768px) {
+		.mainSection {
+			grid-template:
+				"main" 1fr
+				/ 1fr;
+		}
 
-	.sidebar-resize1:hover .resize-handle,.sidebar-resize2:hover .resize-handle {
-		background-color: var(--clr-light-a0);
+		.mainSection :global(.sidebar-resize1), .mainSection :global(.sidebar-resize2) {
+			display: none;
+		}
+
+		.sidebar,
+		.sidebar2 {
+			display: none;
+		}
 	}
 
 </style>
