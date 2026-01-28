@@ -1,11 +1,11 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
-	import PlayerControls from "./player-controls.svelte";
+	import PlayerControls from "$lib/components/routes/player-controls.svelte";
 
 	import '../app.css'
 	import {onMount} from "svelte";
 	import {player} from "$lib/state/player.service";
-	import PanelResizer from "./panel-resizer.svelte";
+	import PanelResizer from "$lib/components/routes/panel-resizer.svelte";
 	import {DragDirection} from "$lib/attachments/resizeX";
 
 	let { children } = $props();
@@ -37,7 +37,6 @@
 
 		<PanelResizer  class="sidebar-resize1" get={() => widthColumLeft}
 					   set={(next) => (widthColumLeft = next)} direction={DragDirection.Right} ></PanelResizer>
-
 
 		<main>
 			{@render children()}

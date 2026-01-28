@@ -1,7 +1,7 @@
 <script lang="ts">
     import type {PageProps} from '$routes';
 
-    import ContentCard from "../../../content-card.svelte";
+    import ContentCard from "$lib/components/content-card.svelte";
 
     let { data }: PageProps = $props();
 

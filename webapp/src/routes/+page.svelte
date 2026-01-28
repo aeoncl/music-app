@@ -1,5 +1,5 @@
 <script lang="ts">
-    import ContentCard from "./content-card.svelte";
+    import ContentCard from "$lib/components/content-card.svelte";
     import type {PageProps} from "./$types";
 
     let { data }: PageProps = $props();
