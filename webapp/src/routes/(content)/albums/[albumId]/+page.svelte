@@ -4,6 +4,7 @@
     import { player, audioPlayerStore } from '$lib/audio-player/player.store';
     import {durationToString} from "$lib";
     import EqualizerText from "$lib/components/equalizer-text.svelte";
+    import FrequencyGradientText from "$lib/components/frequency-gradient-text.svelte";
 
     let { data }: PageProps = $props();
 
@@ -40,7 +41,7 @@
                 </span>
                 <span class="artist">
                     {#if $audioPlayerStore.track?.id === song.id && $audioPlayerStore.playing}
-                        <EqualizerText text={song.artist} />
+                        <FrequencyGradientText text={song.artist} />
                     {:else}
                         {song.artist}
                     {/if}
