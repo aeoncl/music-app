@@ -8,17 +8,20 @@ type PlayerState = {
 	playing: boolean;
 	currentTime: number;
 	duration: number;
+	frequencies: Uint8Array;
 };
 
 export const audioPlayerStore = writable<PlayerState>({
 	track: null,
 	playing: false,
 	currentTime: 0,
-	duration: 0
+	duration: 0,
+	frequencies: new Uint8Array(0)
 });
 
 class AudioPlayer {
 	private backend: AudioBackend | null = null;
+	private animationFrame: number | null = null;
 
 	attach(audioBackend: AudioBackend): void {
 		if (this.backend && this.backend !== audioBackend) return;
@@ -35,10 +38,12 @@ class AudioPlayer {
 
 		this.backend.addEventListener('play', () => {
 			audioPlayerStore.update((s) => ({ ...s, playing: true }));
+			this.startPollingFrequencies();
 		});
 
 		this.backend.addEventListener('pause', () => {
 			audioPlayerStore.update((s) => ({ ...s, playing: false }));
+			this.stopPollingFrequencies();
 		});
 
 		this.backend.addEventListener('trackchange', (track) => {
@@ -49,6 +54,33 @@ class AudioPlayer {
 		this.backend.addEventListener('ended', () => {
 			this.playNext();
 		});
+	}
+
+	private startPollingFrequencies(): void {
+		if (this.animationFrame) return;
+		
+		const poll = () => {
+			if (this.backend) {
+				const frequencies = this.backend.getFrequencyData();
+				audioPlayerStore.update(s => ({ ...s, frequencies }));
+			}
+			this.animationFrame = requestAnimationFrame(poll);
+		};
+		this.animationFrame = requestAnimationFrame(poll);
+	}
+
+	private stopPollingFrequencies(): void {
+		if (this.animationFrame) {
+			cancelAnimationFrame(this.animationFrame);
+			this.animationFrame = null;
+		}
+		// Reset frequencies to zero when stopped, but keep the array length if we want to avoid jumps, 
+        // though 0-length is handled by the component.
+        // Actually, setting it to a zeroed array of the same size might be smoother if it was mid-animation.
+        const currentFrequencies = get(audioPlayerStore).frequencies;
+        if (currentFrequencies.length > 0) {
+            audioPlayerStore.update(s => ({ ...s, frequencies: new Uint8Array(currentFrequencies.length).fill(0) }));
+        }
 	}
 
 	private requireBackend(): AudioBackend {

@@ -3,6 +3,7 @@
     import type {PageProps} from '$routes';
     import { player, audioPlayerStore } from '$lib/audio-player/player.store';
     import {durationToString} from "$lib";
+    import EqualizerText from "$lib/components/equalizer-text.svelte";
 
     let { data }: PageProps = $props();
 
@@ -21,11 +22,29 @@
 {#each data.album.song as song (song.id)}
     <div class="table-row row" onclick={() => player.play(song)} onauxclick={player.enqueue(song)}>
         <div class="trackNumber">
-            <span class:now-playing={$audioPlayerStore.track?.id === song.id}>{song.track}</span>
+            <span class:now-playing={$audioPlayerStore.track?.id === song.id}>
+                {#if $audioPlayerStore.track?.id === song.id && $audioPlayerStore.playing}
+                    <EqualizerText text={song.track.toString()} />
+                {:else}
+                    {song.track}
+                {/if}
+            </span>
         </div>
         <div class="title">
-                <span class:now-playing={$audioPlayerStore.track?.id === song.id} >{song.title}</span>
-                <span class="artist">{song.artist}</span>
+                <span class:now-playing={$audioPlayerStore.track?.id === song.id} >
+                    {#if $audioPlayerStore.track?.id === song.id && $audioPlayerStore.playing}
+                        <EqualizerText text={song.title} />
+                    {:else}
+                        {song.title}
+                    {/if}
+                </span>
+                <span class="artist">
+                    {#if $audioPlayerStore.track?.id === song.id && $audioPlayerStore.playing}
+                        <EqualizerText text={song.artist} />
+                    {:else}
+                        {song.artist}
+                    {/if}
+                </span>
         </div>
         <div class="duration"><span>{durationToString(song.duration)}</span></div>
     </div>

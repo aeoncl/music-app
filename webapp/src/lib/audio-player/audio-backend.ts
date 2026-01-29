@@ -23,6 +23,7 @@ export interface AudioBackend {
 	seek(seconds: number): void;
 	clear(): void;
 	dispose(): void;
+	getFrequencyData(): Uint8Array;
 
 	addEventListener<K extends AudioBackendEventType>(
 		event: K,
@@ -49,9 +50,37 @@ export class HtmlAudioBackend implements AudioBackend {
 		trackchange: new Set()
 	};
 
+	private audioContext: AudioContext | null = null;
+	private analyser: AnalyserNode | null = null;
+	private dataArray: Uint8Array | null = null;
+	private source: MediaElementAudioSourceNode | null = null;
+
 	constructor(audioElement: HTMLAudioElement) {
 		this.audio = audioElement;
 		this.init();
+	}
+
+	private initAnalyser(): void {
+		if (this.audioContext) {
+			if (this.audioContext.state === 'suspended') {
+				this.audioContext.resume();
+			}
+			return;
+		}
+		this.audioContext = new AudioContext();
+		this.analyser = this.audioContext.createAnalyser();
+		this.analyser.fftSize = 64;
+		this.analyser.smoothingTimeConstant = 0.5; // Reduced further for maximum reactivity
+		this.source = this.audioContext.createMediaElementSource(this.audio);
+		this.source.connect(this.analyser);
+		this.analyser.connect(this.audioContext.destination);
+		this.dataArray = new Uint8Array(this.analyser.frequencyBinCount);
+	}
+
+	getFrequencyData(): Uint8Array {
+		if (!this.analyser || !this.dataArray) return new Uint8Array(0);
+		this.analyser.getByteFrequencyData(this.dataArray);
+		return this.dataArray;
 	}
 
 	private init(): void {
@@ -110,6 +139,7 @@ export class HtmlAudioBackend implements AudioBackend {
 	}
 
 	async play(song: Song): Promise<void> {
+		this.initAnalyser();
 		const url = `${PUBLIC_NAVIDROME_URL}/stream?u=${PUBLIC_NAVIDROME_USER}&t=${PUBLIC_NAVIDROME_TOKEN}&s=56228e&format=json&v=1.8.0&c=NavidromeUI&id=${song.id}&format=mp3`;
 		this.emit('trackchange', song);
 		this.audio.src = url;
