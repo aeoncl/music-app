@@ -15,7 +15,7 @@
 		"lint": "eslint . && prettier --check . && eslint .",
 		"format": "prettier --write .",
 		"tauri": "tauri",
-		"android:dev": "cross-env VITE_HMR_HOST_OVERRIDE=192.168.69.112 npx tauri android dev"
+		"android:dev": "cross-env VITE_HMR_HOST_OVERRIDE=10.0.2.2 npx tauri android dev"
 	},
 	"dependencies": {
 		"cross-env": "^10.1.0",
