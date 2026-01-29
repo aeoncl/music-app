@@ -17,10 +17,9 @@ export enum DragDirection {
 	Right = 1
 }
 
-export function resizeX(options: ResizeXOptions) : Attachment {
+export function resizeX(options: ResizeXOptions): Attachment {
 	return (element) => {
-
-		const node = element as HTMLElement
+		const node = element as HTMLElement;
 
 		const min = options.min ?? 120;
 		const max = options.max ?? 500;

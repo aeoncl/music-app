@@ -1,10 +1,11 @@
 <script lang="ts">
 
     import type {PageProps} from '$routes';
-    import { player } from '$lib/state/player.service';
+    import { player, audioPlayerStore } from '$lib/audio-player/player.store';
     import {durationToString} from "$lib";
 
     let { data }: PageProps = $props();
+
 
 
 
@@ -18,15 +19,13 @@
 </div>
 
 {#each data.album.song as song (song.id)}
-    <div class="table-row row" onclick={() => player.play(song)}>
+    <div class="table-row row" onclick={() => player.play(song)} onauxclick={player.enqueue(song)}>
         <div class="trackNumber">
-            <span>{song.track}</span>
+            <span class:now-playing={$audioPlayerStore.track?.id === song.id}>{song.track}</span>
         </div>
         <div class="title">
-            <div>
-                <span>{song.title}</span>
+                <span class:now-playing={$audioPlayerStore.track?.id === song.id} >{song.title}</span>
                 <span class="artist">{song.artist}</span>
-            </div>
         </div>
         <div class="duration"><span>{durationToString(song.duration)}</span></div>
     </div>
@@ -73,20 +72,28 @@
     .title {
         height: 100%;
         width: fit-content;
-        display: table;
+        flex-direction: column;
+        justify-content: center;
+        gap: 0.3em;
+        display: flex;
     }
 
-    .title div {
-        display: table-cell;
-        vertical-align: middle;
+    .now-playing {
+        color: var(--clr-primary-a20);
+        text-shadow: 0 0 7px var(--clr-primary-a20);
+        animation: neonText 1s ease-in-out infinite alternate;
     }
 
-    .title div span {
-        display: block;
+    @keyframes neonText {
+        to {
+            text-shadow: 10 10 7px var(--clr-primary-a20);
+        }
     }
 
-    .title div .artist {
+
+    .title .artist {
         font-weight: bold;
+        color: var(--clr-surface-a40);
         font-size: 0.8em;
     }
 

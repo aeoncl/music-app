@@ -4,9 +4,10 @@
 
 	import '../app.css'
 	import {onMount} from "svelte";
-	import {player} from "$lib/state/player.service";
+	import {player} from "$lib/audio-player/player.store";
 	import PanelResizer from "$lib/components/routes/panel-resizer.svelte";
 	import {DragDirection} from "$lib/attachments/resizeX";
+	import { HtmlAudioBackend } from '$lib/audio-player/audio-backend';
 
 	let { children } = $props();
 
@@ -16,7 +17,7 @@
 	let audioEl: HTMLAudioElement;
 
 	onMount(() => {
-		player.attach(audioEl);
+		player.attach(new HtmlAudioBackend(audioEl));
 	});
 
 </script>
