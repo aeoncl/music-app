@@ -4,7 +4,7 @@
 	"version": "0.0.1",
 	"type": "module",
 	"scripts": {
-		"dev": "vite dev",
+		"dev": "vite dev --host",
 		"build": "vite build",
 		"preview": "vite preview",
 		"prepare": "svelte-kit sync || echo ''",
@@ -13,9 +13,12 @@
 		"test:unit": "vitest",
 		"test": "npm run test:unit -- --run",
 		"lint": "eslint . && prettier --check . && eslint .",
-		"format": "prettier --write ."
+		"format": "prettier --write .",
+		"tauri": "tauri",
+		"android:dev": "cross-env VITE_HMR_HOST_OVERRIDE=192.168.69.112 npx tauri android dev"
 	},
 	"dependencies": {
+		"cross-env": "^10.1.0",
 		"extract-colors": "^4.2.1",
 		"get-pixels": "^3.3.3"
 	},
@@ -26,6 +29,7 @@
 		"@sveltejs/adapter-static": "^3.0.10",
 		"@sveltejs/kit": "^2.49.1",
 		"@sveltejs/vite-plugin-svelte": "^6.2.1",
+		"@tauri-apps/cli": "^2.9.6",
 		"@types/get-pixels": "^3.3.4",
 		"@types/node": "^24",
 		"@vitest/browser-playwright": "^4.0.15",

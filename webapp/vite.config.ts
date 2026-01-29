@@ -4,7 +4,19 @@ import { sveltekit } from '@sveltejs/kit/vite';
 
 export default defineConfig({
 	plugins: [sveltekit()],
-
+	server: {
+		host: '0.0.0.0',
+		port: 5173,
+		strictPort: true,
+		hmr: {
+			protocol: 'ws',
+			host:
+				process.env['VITE_HMR_HOST_OVERRIDE'] !== undefined
+					? process.env['VITE_HMR_HOST_OVERRIDE']
+					: 'localhost',
+			port: 5173
+		}
+	},
 	test: {
 		expect: { requireAssertions: true },
 

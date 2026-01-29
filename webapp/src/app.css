@@ -50,7 +50,8 @@
 
 /* width */
 ::-webkit-scrollbar {
-  width: .6em;
+  /* width: .6em; */
+  display: none;
 }
 
 /* Track */
