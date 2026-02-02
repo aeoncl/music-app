@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { getAudioPlayer } from '$lib/audio-player/audio-player.svelte';
+	import { getAudioPlayer, PlayMode, RepeatMode } from '$lib/audio-player/audio-player.svelte';
 	import { durationToString } from '$lib';
 	import type { Attachment } from 'svelte/attachments';
 
@@ -59,17 +59,48 @@
 			element.removeEventListener('pointerdown', onPointerDown);
 		};
 	};
+
+	function getRepeatModeIcon() {
+		switch (audioPlayer.repeatMode) {
+			case RepeatMode.None:
+				return '➡️';
+			case RepeatMode.Track:
+				return '🔂T';
+			case RepeatMode.Queue:
+				return '🔁Q';
+		}
+	}
+
+
+		function toggleRepeatMode() {
+			switch (audioPlayer.repeatMode) {
+				case RepeatMode.None: {
+					audioPlayer.setRepeatMode(RepeatMode.Queue)
+					break;
+				}
+				case RepeatMode.Queue: {
+					audioPlayer.setRepeatMode(RepeatMode.Track);
+					break;
+				}
+				case RepeatMode.Track: {
+					audioPlayer.setRepeatMode(RepeatMode.None);
+					break;
+				}
+			}
+		}
+
+
 </script>
 
 <div class="player-controls-container">
 	<div class="controls">
-		<button>🔀</button>
+		<button onclick={() => audioPlayer.setPlayMode(audioPlayer.playMode === PlayMode.Normal ? PlayMode.Shuffle : PlayMode.Normal, true)}>{audioPlayer.playMode === PlayMode.Shuffle ? '➡️' : '🔀'}</button>
 		<button onclick={() => audioPlayer.back()}>⏮</button>
 		<button class="play" onclick={() => audioPlayer.toggle()}>
 			{audioPlayer.nowPlaying.playing ? '⏸' : '▶︎'}
 		</button>
 		<button onclick={() => audioPlayer.skip()} >⏭</button>
-		<button>🔂</button>
+		<button onclick={() => toggleRepeatMode()}>{getRepeatModeIcon()}</button>
 	</div>
 
 	<span>{durationToString(audioPlayer.nowPlaying.currentTime)}</span>

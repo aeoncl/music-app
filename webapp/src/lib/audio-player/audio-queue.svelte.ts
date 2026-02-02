@@ -12,7 +12,12 @@ export type AudioQueueEventType = keyof AudioQueueEventMap;
 
 
 export class AudioQueue {
-	public tracks = $state<Song[]>([]);
+	public remainingTracks = $state<Song[]>([]);
+
+	public shuffled = false;
+
+	private _shuffledTracks: Song[] = [];
+	private _originalTracks: Song[] = [];
 
 	private listeners: {
 		[K in AudioQueueEventType]: Set<(data: AudioQueueEventMap[K]) => void>;
@@ -36,26 +41,58 @@ export class AudioQueue {
 	}
 
 	enqueue(song: Song): void {
-		this.tracks.push(song);
+		this._originalTracks.push(song);
+		this.remainingTracks.push(song);
 		this.listeners.trackadded.forEach((callback) => callback(song));
 	}
 
 	enqueue_all(songs: Song[]): void {
-		this.tracks.push(...songs);
+		this._originalTracks.push(...songs);
+		this.remainingTracks.push(...songs);
 		songs.forEach((song) => this.listeners.trackadded.forEach((callback) => callback(song)));
 	}
 
 	clear(): void {
-		this.tracks = [];
+		this._originalTracks = [];
+		this.remainingTracks = [];
+		this._shuffledTracks = [];
+		this.shuffled = false;
+	}
+
+	shuffle(): void {
+		this._shuffledTracks = [...this._originalTracks].sort(() => Math.random() - 0.5);
+		this.remainingTracks = [...this._shuffledTracks];
+		this.shuffled = true;
+	}
+
+	unshuffle(): void {
+		if(this.shuffled) {
+			this.remainingTracks = [...this._originalTracks];
+			this._shuffledTracks = [];
+			this.shuffled = false;
+		}
+	}
+
+	repeat(): void {
+		if (this.shuffled) {
+			this.remainingTracks = [...this._shuffledTracks];
+		} else {
+			this.remainingTracks = [...this._originalTracks];
+		}
 	}
 
 	dequeue(): Song | undefined {
-		const track = this.tracks.shift();
+		const track = this.remainingTracks.shift();
 
 		if (track) {
 			this.listeners.trackremoved.forEach((callback) => callback(track));
 		}
 		return track;
+	}
+
+	dequeue_random(): Song | undefined {
+		const index = Math.floor(Math.random() * this.remainingTracks.length);
+		return this.remainingTracks.splice(index, 1)[0];
 	}
 }
 

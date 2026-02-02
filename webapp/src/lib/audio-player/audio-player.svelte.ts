@@ -14,6 +14,17 @@ type NowPlayingState = {
 	duration: number;
 };
 
+export enum PlayMode {
+	Normal,
+	Shuffle
+}
+
+export enum RepeatMode {
+	None,
+	Track,
+	Queue
+}
+
 class AudioPlayer {
 	public mainQueue;
 	public priorityQueue;
@@ -22,6 +33,9 @@ class AudioPlayer {
 		this.mainQueue = mainQueue;
 		this.priorityQueue = priorityQueue;
 	}
+
+	public playMode: PlayMode = $state(PlayMode.Normal);
+	public repeatMode: RepeatMode = $state(RepeatMode.None);
 
 	public nowPlaying = $state<NowPlayingState>({
 		playing: false,
@@ -70,22 +84,60 @@ class AudioPlayer {
 	}
 
 	play(song: Song): void {
+		this.setPlayMode(this.playMode);
 		this.requireBackend().play(song);
 	}
 
+	setPlayMode(playMode: PlayMode, forceReshuffle = false): void {
+		this.playMode = playMode;
+		switch (playMode) {
+			case PlayMode.Normal: {
+				this.mainQueue.unshuffle();
+				break;
+			}
+			case PlayMode.Shuffle: {
+				if(!this.mainQueue.shuffled || forceReshuffle) {
+					this.mainQueue.shuffle();
+				}
+				break;
+			}
+		}
+	}
+
+	setRepeatMode(repeatMode: RepeatMode): void {
+		this.repeatMode = repeatMode;
+	}
+
 	playNext(): void {
+
+		if(this.repeatMode === RepeatMode.Track && this.nowPlaying.track) return this.play(this.nowPlaying.track);
+
 		let song = this.priorityQueue.dequeue();
 		if (!song) song = this.mainQueue.dequeue();
 
 		if (song) {
-			this.requireBackend().play(song);
+			this.play(song);
 		} else {
-			this.nowPlaying = { track: null, playing: false, currentTime: 0, duration: 0 };
-			this.requireBackend().clear();
+
+			switch (this.repeatMode) {
+				case RepeatMode.Queue: {
+					this.mainQueue.repeat();
+					this.playNext();
+					break;
+				}
+				default: {
+					this.nowPlaying = { track: null, playing: false, currentTime: 0, duration: 0 };
+					this.requireBackend().clear();
+					break;
+				}
+			}
 		}
 	}
 
 	skip(): void {
+		if(this.repeatMode === RepeatMode.Track) {
+			this.setRepeatMode(RepeatMode.Queue);
+		}
 		this.playNext();
 	}
 
