@@ -1,18 +1,20 @@
 <script lang="ts">
-	import { player, audioPlayerStore } from '$lib/audio-player/player.store';
+	import { getAudioPlayer } from '$lib/audio-player/audio-player.svelte';
 	import { durationToString } from '$lib';
 	import type { Attachment } from 'svelte/attachments';
-	import { onMount } from 'svelte';
-	import { HtmlAudioBackend } from '$lib/audio-player/audio-backend';
+
+	let audioPlayer = getAudioPlayer();
 
 	let isDragging = $state(false);
 	let dragPercent = $state(0);
 
+
+
 	let progress = $derived.by(() => {
 		if (isDragging) return dragPercent;
-		const duration = $audioPlayerStore.duration || $audioPlayerStore.track?.duration || 0;
+		const duration = audioPlayer.nowPlaying.duration || audioPlayer.nowPlaying.track?.duration || 0;
 		if (duration <= 0) return 0;
-		return Math.max(0, Math.min(1, $audioPlayerStore.currentTime / duration));
+		return Math.max(0, Math.min(1, audioPlayer.nowPlaying.currentTime / duration));
 	});
 
 	const timelineDrag: Attachment = (node) => {
@@ -40,9 +42,9 @@
 				element.removeEventListener('pointerup', onUp);
 				element.removeEventListener('pointercancel', onUp);
 
-				const duration = $audioPlayerStore.duration || $audioPlayerStore.track?.duration || 0;
+				const duration = audioPlayer.nowPlaying.duration || audioPlayer.nowPlaying.track?.duration || 0;
 				if (duration > 0) {
-					player.seek(duration * getPercent(ev));
+					audioPlayer.seek(duration * getPercent(ev));
 				}
 			};
 
@@ -62,15 +64,15 @@
 <div class="player-controls-container">
 	<div class="controls">
 		<button>🔀</button>
-		<button onclick={() => player.back()}>⏮</button>
-		<button class="play" onclick={() => player.toggle()}>
-			{$audioPlayerStore.playing ? '⏸' : '▶︎'}
+		<button onclick={() => audioPlayer.back()}>⏮</button>
+		<button class="play" onclick={() => audioPlayer.toggle()}>
+			{audioPlayer.nowPlaying.playing ? '⏸' : '▶︎'}
 		</button>
-		<button onclick={() => player.skip()} >⏭</button>
+		<button onclick={() => audioPlayer.skip()} >⏭</button>
 		<button>🔂</button>
 	</div>
 
-	<span>{durationToString($audioPlayerStore.currentTime)}</span>
+	<span>{durationToString(audioPlayer.nowPlaying.currentTime)}</span>
 
 	<div class="timeline" class:dragging={isDragging} {@attach timelineDrag}>
 		<div class="bar-empty"></div>

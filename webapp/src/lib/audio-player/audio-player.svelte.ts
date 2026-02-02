@@ -1,23 +1,35 @@
-import { writable, get } from 'svelte/store';
 import type { Song } from '../../routes/(content)/albums/[albumId]/+page';
 import type { AudioBackend } from './audio-backend';
-import { queue } from './queue.store';
+import { getContext, setContext } from 'svelte';
+import {
+	AudioQueue,
+	getAudioQueue,
+	getPriorityAudioQueue
+} from '$lib/audio-player/audio-queue.svelte';
 
-type PlayerState = {
+type NowPlayingState = {
 	track: Song | null;
 	playing: boolean;
 	currentTime: number;
 	duration: number;
 };
 
-export const audioPlayerStore = writable<PlayerState>({
-	track: null,
-	playing: false,
-	currentTime: 0,
-	duration: 0
-});
-
 class AudioPlayer {
+	public mainQueue;
+	public priorityQueue;
+
+	constructor(mainQueue: AudioQueue, priorityQueue: AudioQueue) {
+		this.mainQueue = mainQueue;
+		this.priorityQueue = priorityQueue;
+	}
+
+	public nowPlaying = $state<NowPlayingState>({
+		playing: false,
+		track: null,
+		currentTime: 0,
+		duration: 0
+	});
+
 	private backend: AudioBackend | null = null;
 
 	attach(audioBackend: AudioBackend): void {
@@ -26,24 +38,25 @@ class AudioPlayer {
 
 		// Subscribe to backend events and update store
 		this.backend.addEventListener('timeupdate', (currentTime) => {
-			audioPlayerStore.update((s) => ({ ...s, currentTime }));
+			this.nowPlaying.currentTime = currentTime;
 		});
 
 		this.backend.addEventListener('durationchange', (duration) => {
-			audioPlayerStore.update((s) => ({ ...s, duration }));
+			this.nowPlaying.duration = duration;
 		});
 
 		this.backend.addEventListener('play', () => {
-			audioPlayerStore.update((s) => ({ ...s, playing: true }));
+			this.nowPlaying.playing = true;
 		});
 
 		this.backend.addEventListener('pause', () => {
-			audioPlayerStore.update((s) => ({ ...s, playing: false }));
+			this.nowPlaying.playing = false;
 		});
 
 		this.backend.addEventListener('trackchange', (track) => {
 			console.log('trackchange', track);
-			audioPlayerStore.update((s) => ({ ...s, track, duration: track.duration }));
+			this.nowPlaying.track = track;
+			this.nowPlaying.duration = track.duration;
 		});
 
 		this.backend.addEventListener('ended', () => {
@@ -57,23 +70,17 @@ class AudioPlayer {
 	}
 
 	play(song: Song): void {
-		this.requireBackend().play(song)
-	}
-
-	enqueue(song: Song): void {
-		queue.enqueue(song);
-		const state = get(audioPlayerStore);
-		if (!state.playing && !state.track) {
-			this.playNext();
-		}
+		this.requireBackend().play(song);
 	}
 
 	playNext(): void {
-		const song = queue.next();
+		let song = this.priorityQueue.dequeue();
+		if (!song) song = this.mainQueue.dequeue();
+
 		if (song) {
 			this.requireBackend().play(song);
 		} else {
-			audioPlayerStore.set({ track: null, playing: false, currentTime: 0, duration: 0 });
+			this.nowPlaying = { track: null, playing: false, currentTime: 0, duration: 0 };
 			this.requireBackend().clear();
 		}
 	}
@@ -83,10 +90,10 @@ class AudioPlayer {
 	}
 
 	back(): void {
-		const previous = queue.previous();
-		if(previous){
-			this.requireBackend().play(previous);
-		}
+		//const previous = queue.previous();
+		//if (previous) {
+		//	this.requireBackend().play(previous);
+		//}
 	}
 
 	pause(): void {
@@ -102,4 +109,16 @@ class AudioPlayer {
 	}
 }
 
-export const player = new AudioPlayer();
+const DEFAULT_KEY = '$_audio_player';
+
+export const getAudioPlayer = (key = DEFAULT_KEY): AudioPlayer => {
+	return getContext<AudioPlayer>(key);
+};
+
+export const setAudioPlayer = (key = DEFAULT_KEY): AudioPlayer => {
+	const mainQueue = getAudioQueue();
+	const priorityQueue = getPriorityAudioQueue();
+
+	const player = new AudioPlayer(mainQueue, priorityQueue);
+	return setContext(key, player);
+};

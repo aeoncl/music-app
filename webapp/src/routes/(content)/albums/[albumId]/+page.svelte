@@ -1,13 +1,22 @@
 <script lang="ts">
 
     import type {PageProps} from '$routes';
-    import { player, audioPlayerStore } from '$lib/audio-player/player.store';
     import {durationToString} from "$lib";
+    import { getAudioPlayer } from '$lib/audio-player/audio-player.svelte';
+    import type { Song } from './+page';
+
 
     let { data }: PageProps = $props();
 
 
+    let audioPlayer = getAudioPlayer()
 
+    function playAlbumFrom(song: Song) {
+       let songs : Song[] = data.album.song.filter(s => s.track > song.track)
+        audioPlayer.mainQueue.clear()
+        audioPlayer.mainQueue.enqueue_all(songs)
+        audioPlayer.play(song)
+    }
 
 
 </script>
@@ -19,12 +28,12 @@
 </div>
 
 {#each data.album.song as song (song.id)}
-    <div class="table-row row" onclick={() => player.play(song)} onauxclick={player.enqueue(song)}>
+    <div class="table-row row" onclick={() => playAlbumFrom(song)} onauxclick={() => audioPlayer.priorityQueue.enqueue(song)}>
         <div class="trackNumber">
-            <span class:now-playing={$audioPlayerStore.track?.id === song.id}>{song.track}</span>
+            <span class:now-playing={audioPlayer.nowPlaying.track?.id === song.id}>{song.track}</span>
         </div>
         <div class="title">
-                <span class:now-playing={$audioPlayerStore.track?.id === song.id} >{song.title}</span>
+                <span class:now-playing={audioPlayer.nowPlaying.track?.id === song.id} >{song.title}</span>
                 <span class="artist">{song.artist}</span>
         </div>
         <div class="duration"><span>{durationToString(song.duration)}</span></div>

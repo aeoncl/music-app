@@ -4,15 +4,21 @@
 
 	import '../app.css'
 	import {onMount} from "svelte";
-	import {player} from "$lib/audio-player/player.store";
+	import { setAudioPlayer } from '$lib/audio-player/audio-player.svelte';
 	import PanelResizer from "$lib/components/routes/panel-resizer.svelte";
 	import {DragDirection} from "$lib/attachments/resizeX";
 	import { HtmlAudioBackend } from '$lib/audio-player/audio-backend';
+	import { setAudioQueue, setPriorityAudioQueue } from '$lib/audio-player/audio-queue.svelte';
 
 	let { children } = $props();
 
 	let widthColumLeft = $state(240);
 	let widthColumRight = $state(240);
+
+
+	setAudioQueue();
+	setPriorityAudioQueue();
+	const player = setAudioPlayer()
 
 	let audioEl: HTMLAudioElement;
 
