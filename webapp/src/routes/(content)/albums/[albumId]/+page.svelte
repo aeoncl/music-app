@@ -8,7 +8,6 @@
 
     let { data }: PageProps = $props();
 
-
     let audioPlayer = getAudioPlayer()
 
     function playAlbumFrom(song: Song) {

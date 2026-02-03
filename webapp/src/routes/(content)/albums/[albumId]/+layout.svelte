@@ -2,7 +2,7 @@
     import { page } from '$app/state';
     import {backIn, backOut, backInOut} from "svelte/easing";
     import {onMount} from "svelte";
-    import {extractColorsFromSrc} from "extract-colors";
+    import { extractColorsFromImage, extractColorsFromSrc } from 'extract-colors';
     import type {FinalColor} from "extract-colors/lib/types/Color";
 
     let { children } = $props();
@@ -47,33 +47,51 @@
         // Reset scroll position when navigating to new artist
         const container = document.querySelector('.page-container') as HTMLElement;
         if (container) container.scrollTop = 0;
-
     })
 
+    let lastBannerForColorCompute = $state("");
+
+    let colorLoading = $state(false);
     let dominantColor = $state({red: 0, green: 0, blue: 0} as FinalColor);
-    let currentImageUrl = $state('');
 
-    $effect(() => {
-        const imageUrl = page.data.banner.image;
+    let bannerError = $state(false);
+    let bannerImg: HTMLImageElement;
 
-        // Skip if we already extracted colors for this image
-        if (imageUrl === currentImageUrl) return;
 
-        currentImageUrl = imageUrl;
+    function onArtistBannerLoaded() {
 
-        extractColorsFromSrc(imageUrl).then(colors => {
+        if (bannerError) return;
+
+        if(lastBannerForColorCompute === page.data.banner.image) return;
+
+        lastBannerForColorCompute = page.data.banner.image;
+        extractColorsFromImage(bannerImg).then(colors => {
             if (colors && colors.length > 0) {
                 dominantColor = colors[0];
+                colorLoading = true;
             }
         }).catch(error => {
             console.error("Error extracting colors:", error);
         });
-    })
+    }
 
 
 </script>
 
-<div class="page-container" onscroll={handleScroll} style:--img="url({page.data.banner.image})" style:--scaleAmount="{scaleAmount}%" style:--opacityAmountDown="{opacityAmountDown}">
+
+<div class="page-container" onscroll={handleScroll}>
+    <img
+      bind:this={bannerImg}
+      class="banner-bg"
+      src={page.data.banner.image}
+      alt=""
+      aria-hidden="true"
+      onload={() => onArtistBannerLoaded()}
+      onerror={() => bannerError = true}
+      style:transform="scale({scaleAmount}%)"
+      style:opacity={opacityAmountDown}
+    />
+
     <div class="container" style:background-color="rgba({dominantColor.red}, {dominantColor.green}, {dominantColor.blue}, {opacityAmountUpSlower})">
         <div class="sticky-header"  style:background-color="rgba({dominantColor.red}, {dominantColor.green}, {dominantColor.blue}, {opacityAmountUp})">
             <div class="sticky-header-content" style:opacity="{!titleInView ? 1 : 0}">
@@ -81,13 +99,12 @@
                 <h2>{page.data.title}</h2>
             </div>
 
-
         </div>
         <div class="header" >
             <h1>{page.data.title}</h1>
         </div>
 
-        <div class="content" style:--gradient-color="rgba({dominantColor.red}, {dominantColor.green}, {dominantColor.blue}, 0.5)" >
+        <div class="content" class:color-loading={colorLoading} style:--gradient-color="rgba({dominantColor.red}, {dominantColor.green}, {dominantColor.blue}, 0.5)" >
             {@render children()}
         </div>
 
@@ -104,15 +121,15 @@
         transform: translateX(0);
     }
 
-    .page-container:before {
+    .banner-bg {
         content: '';
         position: fixed;
-        background-image: var(--img);
-        height: 100%;
+        top: 0;
+        left: 0;
         width: 100%;
-        opacity: var(--opacityAmountDown);
-        background-size: var(--scaleAmount);
-        background-position: center;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
         z-index: -1;
     }
 
@@ -162,6 +179,15 @@
         height: 128px;
         background: linear-gradient(to bottom, var(--gradient-color), transparent);
         pointer-events: none; /* Allows clicks to pass through */
+    }
+
+    .content.color-loading::before {
+        animation: fadeIn 0.8s ease-in-out forwards;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; }
+        to { opacity: 1; }
     }
 
 

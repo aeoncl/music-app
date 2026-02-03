@@ -17,6 +17,7 @@ export class AudioQueue {
 	public shuffled = false;
 
 	private _shuffledTracks: Song[] = [];
+	private _sequentialRemainingTracks: Song[] = [];
 	private _originalTracks: Song[] = [];
 
 	private listeners: {
@@ -56,10 +57,12 @@ export class AudioQueue {
 		this._originalTracks = [];
 		this.remainingTracks = [];
 		this._shuffledTracks = [];
+		this._sequentialRemainingTracks = [];
 		this.shuffled = false;
 	}
 
 	shuffle(): void {
+		this._sequentialRemainingTracks = [...this.remainingTracks];
 		this._shuffledTracks = [...this._originalTracks].sort(() => Math.random() - 0.5);
 		this.remainingTracks = [...this._shuffledTracks];
 		this.shuffled = true;
@@ -67,7 +70,7 @@ export class AudioQueue {
 
 	unshuffle(): void {
 		if(this.shuffled) {
-			this.remainingTracks = [...this._originalTracks];
+			this.remainingTracks = [...this._sequentialRemainingTracks];
 			this._shuffledTracks = [];
 			this.shuffled = false;
 		}
