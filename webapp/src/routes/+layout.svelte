@@ -1,6 +1,7 @@
 <script lang="ts">
 	import favicon from '$lib/assets/favicon.svg';
 	import PlayerControls from "$lib/components/routes/player-controls.svelte";
+	import Turntable from "$lib/components/turntable.svelte";
 
 	import '../app.css'
 	import {onMount} from "svelte";
@@ -47,6 +48,7 @@
 					  set={(next) => (widthColumRight = next)} direction={DragDirection.Left} ></PanelResizer>
 
 		<aside class="sidebar2" style={`width: ${widthColumRight}px`}>
+			<Turntable />
 		</aside>
 
 	</div>
